@@ -1,134 +1,171 @@
 var canvas, ctx;
 var pimg, pattern;
 var curr_color, dctrl;
-
+var layer_2, layer_2_ctx;
 function init() {
     dctrl = {drawing: false};
 
     canvas = document.getElementById("blackboard");
-    canvas.addEventListener("mousedown", canvas_mousedown);
-    canvas.addEventListener("mousemove", canvas_mousemove);
-    canvas.addEventListener("mouseout", canvas_mouseout);
-    canvas.addEventListener("mouseup", canvas_mouseup);
-
+    layer_2 = document.getElementById("mel");
+    layer_2_ctx = layer_2.getContext("2d");
     ctx = canvas.getContext("2d");
-    ctx.lineWidth = 10;
+    ctx.lineWidth = 6;
     ctx.lineCap = "round";
 
     pattern = ctx.createPattern(pimg, "repeat");
 
-    curr_color = "#e80b30";
+    curr_color = "#c75136";
 
 
-    ctx.font = "bold 36px sans-serif";
-    ctx.textAlign = "center";
+    var mel = new Image();
+    mel.src = "mel_red_big.png";
 
-    ctx.globalCompositeOperation = "source-over";
-    ctx.strokeStyle = pattern;
-    ctx.strokeRect(320, 40, 30, 30)
+    mel.onload = function () {
+
+        canvas_logo(mel, layer_2_ctx);
+    }
+
+
 
 
 }
 
 
+function draw(x1, y1, x2, y2, mel, what, callback) {
 
 
+    var h1 = x2 - x1;
+    var h2 = y2 - y1;
+    var foo, rx, ry;
 
-
-function gyg(x1,y1,x2,y2, to, callback) {
-    
-    if(to == 'x'){
-        var h = setInterval(drawX, 10);
+    if (h2 == 0) {
+        ry = 0;
+        rx = h1 == 0 ? 0 : x2 > x1 ? 1 : -1;
+    } else if (h1 == 0) {
+        ry = h2 == 0 ? 0 : y2 > y1 ? 1 : -1;
+        rx = 0;
+    } else if (h2 > h1) {
+        foo = h1 != 0 && h2 != 0 ? Math.abs((Math.abs(h1) / Math.abs(h2))) : '';
+        ry = h2 == 0 ? 0 : y2 > y1 ? 1 : -1;
+        rx = h1 == 0 ? 0 : h2 >= h1 ? foo : foo;
+        rx = rx == 0 ? 0 : x2 > x1 ? rx : -rx;
+    } else if (h1 > h2) {
+        foo = h1 != 0 && h2 != 0 ? Math.abs((Math.abs(h2) / Math.abs(h1))) : '';
+        rx = h1 == 0 ? 0 : x2 > x1 ? 1 : -1;
+        ry = h2 == 0 ? 0 : h1 >= h2 ? foo : foo;
+        ry = ry == 0 ? 0 : y2 > y1 ? ry : -ry;
+    } else {
+        ry = 1;
+        rx = 1;
     }
 
-    if(to == 'y'){
-        var h = setInterval(drawY, 10);
-    }
-    if(to == 'both'){
-        var h = setInterval(draw, 10);
+
+
+
+
+
+
+    if (what == 'both') {
+        var interval = setInterval(function () {
+            action();
+            draw_mel()
+
+        }, 10);
+    } else if (what == 'mel') {
+        var interval = setInterval(function () {
+            action('mel');
+            draw_mel()
+        }, 10);
+
     }
 
-    function drawX() {
-        if(x1 > x2){
-            ctx.beginPath();
-            if (x2 >= x1){clearInterval(h); callback()}
-            draw_line(x1 + 1, y1, x1, y1)
-            ctx.closePath();
-            ctx.fill();
-            x1 -= 1;
-        }else{
-            ctx.beginPath();
-            if (x1 >= x2){clearInterval(h); callback()}
-            draw_line(x1 - 1, y1, x1, y1)
-            ctx.closePath();
-            ctx.fill();
-            x1 += 1;
+
+    function action(mel) {
+        ctx.beginPath();
+
+        if (Math.round(x1) == Math.round(x2) && Math.round(y1) == Math.round(y2)) {
+            clearInterval(interval);
+            callback ? callback() : null
         }
-        
-
-    }
-
-    function drawY() {
-        if(y1 > y2){
-            ctx.beginPath();
-            if (y2 >= y1){clearInterval(h); callback()}
-            draw_line(x1, y1 + 1, x1, y1)
-            ctx.closePath();
-            ctx.fill();
-            y1 -= 1;
-        }else{
-            ctx.beginPath();
-            if (y1 >= y2){clearInterval(h); callback()}
-            draw_line(x1, y1 - 1, x1, y1)
-            ctx.closePath();
-            ctx.fill();
-            y1 += 1;
+        if (!mel) {
+            draw_line(x1 - rx, y1 - ry, x1, y1)
         }
 
-        
+        ctx.closePath();
+        ctx.fill();
+        y1 += ry;
+        x1 += rx;
     }
 
-    function draw() {
-        var h1 = x2 - x1;
-        var h2 = y2 - y1;
-        var kek = (h1 - h2) / h2;
-        // var rx = 1;
-        // var ry = kek;
 
-        console.log(kek);
-        clearInterval(h)
-        // if(kek == 1 ){
-        //     ctx.beginPath();
-           // if (x1 >= x2){clearInterval(h); callback()}
-        //     draw_line(x1 - 1 , y1 - 1, x1, y1)
-        //     ctx.closePath();
-        //     ctx.fill();
-        //     y1 += 1;
-        //     x1 += 1;
-        // }
-            
-            
-        
-            
-        
-        
+
+    function draw_mel() {
+        var mel_x1 = x1 + 2, mel_y1 = y1 -20;
+        layer_2_ctx.clearRect(0, 0, 1000, 1000)
+        layer_2_ctx.drawImage(mel, mel_x1, mel_y1);
+
 
     }
 
 
 }
 
-// gyg(150, 100, 300, 200, "y", function(){
-//         gyg(150, 200, 300, 200, "x", function(){
-//             gyg(300, 200, 300, 100, "y", function(){
-//                 gyg(300, 100, 150, 100, "x")
-//             })
-//         })
 
-// })
+function canvas_logo(mel, layer_2_ctx) {
+    ctx.clearRect(0, 0, 1000, 1000)
+    draw_line(3, 23, 3, 40);
+    draw_line(3, 40, 20, 40);
+    draw_line(20, 40, 20, 23);
+    draw_line(20, 23, 3, 23);
+    layer_2_ctx.drawImage(mel, 20, 4);
+    var elem = document.getElementById("mel");
 
 
-gyg(20, 60, 10, 10, "both");
+
+
+    elem.addEventListener("mouseenter", function(){
+        ctx.clearRect(0, 0, 1000, 1000)
+        draw_line(3, 23, 3, 40);
+        draw_line(3, 40, 20, 40);
+        draw_line(20, 40, 20, 23);
+        draw_line(20, 23, 3, 23);
+        layer_2_ctx.drawImage(mel, 20, 4);
+
+
+
+
+        draw(3, 57, 3, 90, mel, 'both', function () {
+            draw(3, 90, 36, 90, mel, 'both', function () {
+                draw(36, 90, 36, 57, mel, 'both', function () {
+                    draw( 36, 57, 3, 57, mel, 'both', function () {
+                        draw( 36, 23, 36, 23, mel, 'mel', function () {
+                            draw( 36, 23, 70, 23, mel, 'both', function () {
+                                draw(70, 23, 70, 90, mel, 'both', function () {
+                                    draw(70, 90, 36, 90, mel, 'both', function () {
+                                        draw(36, 90, 70, 57, mel, 'mel', function () {
+                                            draw(70, 57, 36, 57, mel, 'both', function () {
+                                                draw(36, 57, 36, 23, mel, 'both', function () {
+
+                                                })
+                                            })
+                                        })
+                                    })
+                                })
+                            })
+                        })
+
+                    })
+                })
+            });
+        });
+
+
+    }, false);
+
+
+
+}
+
 
 function draw_line(x1, y1, x2, y2) {
     ctx.beginPath();
@@ -144,43 +181,6 @@ function draw_line(x1, y1, x2, y2) {
     ctx.stroke();
 }
 
-function draw_line_ev(ev) {
-
-    var rect = ev.target.getBoundingClientRect();
-    var mousex = ev.clientX - rect.left;
-    var mousey = ev.clientY - rect.top;
-    draw_line(dctrl.prevx, dctrl.prevy, mousex, mousey);
-    dctrl.prevx = mousex;
-    dctrl.prevy = mousey;
-}
-
-function canvas_mousedown(ev) {
-    var rect = ev.target.getBoundingClientRect();
-
-    dctrl.drawing = true;
-
-    draw_line();
-
-    dctrl.prevx = ev.clientX - rect.left;
-    dctrl.prevy = ev.clientY - rect.top;
-}
-
-function canvas_mousemove(ev) {
-    if (dctrl.drawing) {
-        draw_line_ev(ev);
-    }
-}
-
-function canvas_mouseout(ev) {
-    if (dctrl.drawing) {
-        draw_line_ev(ev);
-    }
-    dctrl.drawing = false;
-}
-
-function canvas_mouseup(ev) {
-    dctrl.drawing = false;
-}
 
 pimg = new Image();
 pimg.onload = init;
