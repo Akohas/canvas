@@ -1,3 +1,13 @@
+
+curr_color = "#c75136";
+
+
+var mel = new Image();
+mel.src = "mel_red_big.png";
+
+
+
+
 var canvas, ctx;
 var pimg, pattern;
 var curr_color, dctrl;
@@ -13,6 +23,7 @@ function init() {
     ctx.lineCap = "round";
 
     pattern = ctx.createPattern(pimg, "repeat");
+
 
     curr_color = "#c75136";
 
@@ -119,20 +130,19 @@ function canvas_logo(mel, layer_2_ctx) {
     draw_line(20, 23, 3, 23);
     layer_2_ctx.drawImage(mel, 20, 4);
     var elem = document.getElementById("mel");
+    var count;
 
-
-
-
-    elem.addEventListener("mouseenter", function(){
+    function draw_logo(){
+        if(count == 0){
+            return
+        }
+        count = 0;
         ctx.clearRect(0, 0, 1000, 1000)
         draw_line(3, 23, 3, 40);
         draw_line(3, 40, 20, 40);
         draw_line(20, 40, 20, 23);
         draw_line(20, 23, 3, 23);
         layer_2_ctx.drawImage(mel, 20, 4);
-
-
-
 
         draw(3, 57, 3, 90, mel, 'both', function () {
             draw(3, 90, 36, 90, mel, 'both', function () {
@@ -144,8 +154,8 @@ function canvas_logo(mel, layer_2_ctx) {
                                     draw(70, 90, 36, 90, mel, 'both', function () {
                                         draw(36, 90, 70, 57, mel, 'mel', function () {
                                             draw(70, 57, 36, 57, mel, 'both', function () {
-                                                draw(36, 57, 36, 23, mel, 'both', function () {
-
+                                                draw(36, 57, 36, 23, mel, 'both', function(){
+                                                    count = 1;
                                                 })
                                             })
                                         })
@@ -159,7 +169,13 @@ function canvas_logo(mel, layer_2_ctx) {
             });
         });
 
+    }
 
+
+
+    elem.addEventListener("mouseenter", function(){
+
+        draw_logo(count)
     }, false);
 
 
